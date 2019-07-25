@@ -48,6 +48,7 @@ public class CarManage {
     }
 
     private Car addRandomProperties(Car car) {
+
         car.setNumberPlate(randomNumberPlate());
         car.setBrand(randomBrand());
         car.setYearManufacture(randomYear());
@@ -128,7 +129,7 @@ public class CarManage {
         insurance = scanner.nextLine();
         String pack = dalCar.insurancePack(insurance);
         return pack;
-    } // mua bao hiem
+    }
 
     public String getPackType() {
         String id;
@@ -137,7 +138,7 @@ public class CarManage {
         id = scanner.nextLine();
         String packageType = dalCar.insurancePackCar(id);
         return packageType;
-    } // chon goi
+    }
 
     public void ShowCarInfo(){
         DisplaySpecificCarList();

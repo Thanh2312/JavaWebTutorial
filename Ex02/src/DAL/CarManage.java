@@ -3,6 +3,7 @@ package DAL;
 import DTO.Car;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class CarManage {
 
@@ -16,8 +17,22 @@ public class CarManage {
         return false;
     }
 
+    public int total(){
+        query = "select count(*) from Car";
+        int value = 0;
+        try {
+            value = connectDB.GetTable(query).getInt(1);
+        }
+        catch (SQLException ex) {
+            System.out.println(ex);
+        }
+        finally {
+            return value;
+        }
+    }
+
     public void addCar(Car car) {
-        query = "INSERT INTO Car VALUES ('" + car.getId() + "', " + car.getNumberPlate() + ", " +
+        query = "INSERT INTO Car VALUES ('" + car.getId() + "', '" + car.getNumberPlate() + "', " +
                 car.getYearManufacture() + ", '" + car.getBrand() + "', '" +
                 car.isHaveInsurance() + "'," + "" + ","+ "" + ","+ "" + ","+ "" + "," + "'" + car.getTypeCar() + "')";
         connectDB.DataHandle(query);

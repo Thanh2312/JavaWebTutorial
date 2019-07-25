@@ -70,7 +70,8 @@ public abstract class Car {
     @Override
     public String toString() {
         return "Car{" +
-                "numberPlate='" + numberPlate + '\'' +
+                "idCar="+ id+
+                " numberPlate='" + numberPlate + '\'' +
                 ", yearManufacture=" + yearManufacture +
                 ", brand=" + brand +
                 ", haveInsurance=" + haveInsurance

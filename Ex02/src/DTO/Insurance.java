@@ -13,16 +13,16 @@ public class Insurance {
         this.insurancePackage = insurancePackage;
     }
 
-    public PackageType getPackageType() {
-        return packageType;
-    }
-
     public void setPackageType(PackageType packageType) {
         this.packageType = packageType;
     }
 
+    public PackageType getPackageType() {
+        return packageType;
+    }
+
     @Override
-    public String toString() {
-        return "Insurance" + getInsurancePackage() + getPackageType().typeP;
+    public String toString(){
+        return getInsurancePackage() + " Package " + getPackageType().typeP;
     }
 }
