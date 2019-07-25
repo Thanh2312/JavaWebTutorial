@@ -31,15 +31,20 @@ public abstract class Car {
         return id;
     }
 
-    public void setId(String Id){
-        this.id = id;
+    public void setId(String param){
+        this.id = param; // dòng này : this.id ngĩa là id của đối tượng car, còn String Id thì Id là tham số truyền vào
+    //ý nghĩa của dòng bên trên là cho id bên trong đối tượng car bằng vói Id tham số truyền vào
+        // có khả năng là c viết tay cái set nay, hoặc c đổi tên cái biến Id thành id nên gây lỗi
+        // viết giống y mấy dòng dưới kìa mà, đây mới là giống nhé. nãy cậu sửa chỗ nào nhờ, ban đầu nó là thế này: vì
+        // viết thế kia nên hóa ra id lại bằng chính nó
+        //còn viết thế này: thì id = tham số truyền vào, đó là tham só truyền vào
     }
 
     public String getNumberPlate() {
         return numberPlate;
     }
 
-    public void setNumberPlate(String numberPlate) {
+    public void setNumberPlate(String numberPlate) { //numberPlate ở dòng này là tham số truyền vào, chứ ko phải property của Object Car
         this.numberPlate = numberPlate;
     }
 
