@@ -39,7 +39,8 @@ public class CarManage {
                 car = addRandomProperties(car);
             }
             car = addRandomProperties(car);
-            car.setId("Car #"+(total + i +1));
+            car.setId("carnew"+(total + i +1));
+//            car.setTypeCar();
             cars[i] = car;
 
             dalCar.addCar(cars[i]);
