@@ -4,10 +4,12 @@ public class MediumCar extends  Car{
     private boolean havePowerSteering;
 
     public MediumCar(){
+        setTypeCar("Medium Car");
     }
 
     public MediumCar(boolean havePowerSteering){
         this.havePowerSteering = havePowerSteering;
+        setTypeCar("Medium Car");
     }
 
     public boolean isHavePowerSteering() {
@@ -17,6 +19,7 @@ public class MediumCar extends  Car{
     public void setHavePowerSteering(boolean havePowerSteering) {
         this.havePowerSteering = havePowerSteering;
     }
+
 
     @Override
     public String toString() {

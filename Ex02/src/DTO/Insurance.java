@@ -1,9 +1,17 @@
 package DTO;
 
 public class Insurance {
-    public String insurancePackage;
-    public PackageType packageType;
+    private String insurancePackage;
+    private PackageType packageType;
+    private boolean assigned;
+    public Insurance(){
 
+    }
+    public Insurance(String insurancePackage, PackageType packageType, boolean assigned) {
+        this.insurancePackage = insurancePackage;
+        this.packageType = packageType;
+        this.assigned = assigned;
+    }
 
     public String getInsurancePackage() {
         return insurancePackage;
@@ -21,8 +29,16 @@ public class Insurance {
         return packageType;
     }
 
+    public boolean isAssigned() {
+        return assigned;
+    }
+
+    public void setAssigned(boolean assigned) {
+        this.assigned = assigned;
+    }
+
     @Override
     public String toString(){
-        return getInsurancePackage() + " Package " + getPackageType().typeP;
+        return "name: " + getInsurancePackage() + "|| Package " + getPackageType().typeP+"|| Assigned: "+ isAssigned();
     }
 }

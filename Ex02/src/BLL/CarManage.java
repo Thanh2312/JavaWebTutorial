@@ -1,5 +1,7 @@
 package BLL;
 
+import DAL.CarTableConnection;
+import DAL.InsuranceTableConnection;
 import DTO.*;
 
 import java.sql.ResultSet;
@@ -7,19 +9,18 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.Vector;
 
 public class CarManage {
-    private DAL.CarManage dalCar;
-    private ResultSet table;
+    private CarTableConnection carTableConnection;
+    private Vector<String> vectorNumberPlate;
 
     public CarManage(){
-        dalCar = new DAL.CarManage();
+        carTableConnection = new CarTableConnection();
     }
-
-    private Vector<String> vectorNumberPlate;
 
     public Car[] createCars(int total){
         vectorNumberPlate = new Vector<>();
@@ -34,16 +35,16 @@ public class CarManage {
             }else if(type==1){
                 car = new MediumCar();
                 car = addRandomProperties(car);
+                ((MediumCar) car).setHavePowerSteering(randomBoolean());
             }else if(type==2){
                 car = new ModernCar();
                 car = addRandomProperties(car);
+                ((ModernCar) car).setHavePositionDevice(randomBoolean());
             }
             car = addRandomProperties(car);
-            car.setId("carnew"+(total + i +1));
-//            car.setTypeCar();
+            car.setId("Car #"+(total + i +1));
             cars[i] = car;
-
-            dalCar.addCar(cars[i]);
+            carTableConnection.addCar(cars[i]);
         }
         return cars;
     }
@@ -53,7 +54,7 @@ public class CarManage {
         car.setNumberPlate(randomNumberPlate());
         car.setBrand(randomBrand());
         car.setYearManufacture(randomYear());
-        car.setHaveInsurance(randomBoolean());
+        car.setHaveInsurance(false);
         return car;
     }
 
@@ -70,7 +71,7 @@ public class CarManage {
                 int number = new Random().nextInt(9);
                 numberPlate += number;
             }
-            haveInDB = DAL.CarManage.sameNumberPlate(numberPlate);
+            haveInDB = CarTableConnection.sameNumberPlate(numberPlate);
             inVectorNumberPlate = vectorNumberPlate.add(numberPlate);
         }
         return numberPlate;
@@ -98,95 +99,110 @@ public class CarManage {
         return Integer.parseInt(dateTimeFormatter.format(localDateTime));
     }
 
+    public void assignAssurance() {
+        String id;
+        Car car = null;
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Nhap ID cua xe muon dang ki(nhap exit roi Enter neu muon thoat), dam bao rang CSDL da co xe");
+        while (true){
+            id = scanner.nextLine();
+            if (id.equalsIgnoreCase("exit")){
+                id = "";
+                break;
+            }
+            if (id.equals("")) {
+                System.out.println("Canh bao: Ban chua nhap gi, yeu cau nhap lai ID xe hoac dung chuong trinh dang ki bao hiem (go exit roi Enter)");
+                continue;
+            }
+            car = carTableConnection.getCarFromID(id);
+            if (car==null){
+                System.out.println("Thong bao: Khong co xe nay trong danh sach xe, nhap lai ID xe hoac thoat chuong trinh dang ki bao hiem(go exit roi Enter)");
+                continue;
+            }else {
+                if (car.isHaveInsurance()) {
+                    System.out.println("Unavailable Buying!");
+                    continue;
+                }else break;
+            }
+        }
+        if (id=="") return;
+        System.out.println("Thong tin xe: "+ car.toString());
+        //------------ giai doan chon xe mua bao hiem da xong
+        Insurance[] insurances = (new InsuranceTableConnection()).getListPackNotAssign();
+        if (insurances.length==0){
+            System.out.println("Khong co goi bao hiem nao chua duoc mua hoac khong co goi bao hiem nao trong CSDL, chuong trinh dang ki bao hiem buoc dung!");
+            System.out.println("Hay dam bao cac goi bao hiem da duoc tao ra!");
+            return;
+        }
+        System.out.println("Danh sach cac goi bao hiem chua duoc dang ki: ");
+        for (int i = 0; i< insurances.length; i++){
+            System.out.println("Thu tu "+ (i+1)+": " + insurances[i].toString());
+        }
+        while (true) {
+            System.out.println("Xin nhap so thu tu goi bao hiem muon mua sau do Enter(nhap exit roi Enter de thoat chuong trinh dang ki bao hiem): ");
+            String choice = scanner.nextLine();
+            if (choice.equalsIgnoreCase("exit")){
+                break;
+            }
+            int index = Integer.parseInt(choice);
+            Insurance insuranceBeChoiced = insurances[index - 1];
+            System.out.println("Ban da chon goi thu tu so: " + index + ": " + insuranceBeChoiced.toString());
+            if (car.getTypeCar() != getCarTypeFromPack(insuranceBeChoiced.getPackageType())) {
+                System.out.println("Invalid Package!");
+            } else {
+                System.out.println("Successful Buying!");
+                carTableConnection.updateHaveInsurance(id, insuranceBeChoiced.getInsurancePackage());
+                break;
+            }
+        }
+    }
+
+    private String getCarTypeFromPack(PackageType packageType) {
+        String carType = null;
+        switch (packageType){
+            case Old:
+                carType = "Old Car";
+                break;
+            case Medium:
+                carType = "Medium Car";
+                break;
+            case Modern:
+                carType = "Modern Car";
+                break;
+        }
+        return carType;
+    }
+
+    public void showCarInfo(String carType) {     //gọi có điều kiện, tương tự select *from where
+        ArrayList<ArrayList<byte[]>> listArrayList = carTableConnection.getList(carType);
+        System.out.println("IDCar\t|| NumberPlate\t|| YearOfManufacture\t||CarType\t||HaveInsurance\t");
+        for (ArrayList<byte[]> row: listArrayList){
+            String id = new String(row.get(0));
+            String np = new String(row.get(1));
+            int yom = InsuranceTableConnection.byteArrayToInt(row.get(2));
+            String ct = new String(row.get(3));
+            boolean hi = new Boolean(new String(row.get(4)));
+            System.out.println(id+"\t||"+np+"\t||"+yom+"\t||"+ct+"\t||"+hi+"\t||");
+        }
+    }
+
+    public void showCarInfo() {
+        ArrayList<ArrayList<byte[]>> listArrayList = carTableConnection.getList();
+        System.out.println("IDCar\t|| NumberPlate\t|| YearOfManufacture\t||CarType\t||HaveInsurance\t");
+        for (ArrayList<byte[]> row: listArrayList){
+            String id = new String(row.get(0));
+            String np = new String(row.get(1));
+            int yom = InsuranceTableConnection.byteArrayToInt(row.get(2));
+            String ct = new String(row.get(3));
+            boolean hi = new Boolean(new String(row.get(4)));
+            System.out.println(id+"\t||"+np+"\t||"+yom+"\t||"+ct+"\t||"+hi+"\t||");
+        }
+    }
+
     public static void main(String[] args){
         CarManage carManage = new CarManage();
-        Car[] cars = carManage.createCars(10);
-        for(int i = 0; i<10; i++)
-        {
-            System.out.println(cars[i].toString());
-        }
+        carManage.assignAssurance();
+//        carManage.showCarInfo("Modern Car");
+//        carManage.showCarInfo();
     }
-
-    public void assignAssurance(String id, String insurancePackage) {
-        if (dalCar.haveInsurance(id) == true) {
-            System.out.println("Unavailable Buying!");
-        }
-        else {
-            if (choiceInsurance() != getPackType()) {
-                System.out.println("Invalid Package!");
-            }
-            else
-            {
-                System.out.println("Successful Buying!");
-                dalCar.updateInfo(id, insurancePackage);
-            }
-        }
-    }
-
-    public String choiceInsurance(){
-        String insurance;
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Nhap goi bao hiem muon mua: ");
-        insurance = scanner.nextLine();
-        String pack = dalCar.insurancePack(insurance);
-        return pack;
-    }
-
-    public String getPackType() {
-        String id;
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Nhap goi bao hiem muon mua: ");
-        id = scanner.nextLine();
-        String packageType = dalCar.insurancePackCar(id);
-        return packageType;
-    }
-
-    public void ShowCarInfo(){
-        DisplaySpecificCarList();
-    }
-
-    public void ShowCarInfo(String carType){
-        DisplaySpecificCarList(carType);
-    }
-
-    private void DisplaySpecificCarList(String carType) {     //gọi có điều kiện, tương tự select *from where
-        try {
-            table = dalCar.getList(carType);
-            ResultSetMetaData rsmd = table.getMetaData();
-            int colCount = rsmd.getColumnCount();
-            while (table.next()) {
-                for (int i = 1; i <= colCount; i++) {
-                    if (i > 1) System.out.print(",  ");
-                    String columnValue = table.getString(i);
-                    System.out.print(columnValue + " " + rsmd.getColumnName(i));
-                }
-                System.out.println("");
-            }
-        }
-        catch (SQLException ex) {
-            System.out.println(ex);
-        }
-    }
-
-    private void DisplaySpecificCarList() {					//tương tự select * from
-        try {
-            table = dalCar.getList();
-            ResultSetMetaData rsmd = table.getMetaData();
-            int colCount = rsmd.getColumnCount();
-            while (table.next()) {
-                for (int i = 1; i <= colCount; i++) {
-                    if (i > 1) System.out.print(",  ");
-                    String columnValue = table.getString(i);
-                    System.out.print(columnValue + " " + rsmd.getColumnName(i));
-                }
-                System.out.println("");
-            }
-        }
-        catch (SQLException ex) {
-            System.out.println(ex);
-        }
-
-    }
-
-
 }

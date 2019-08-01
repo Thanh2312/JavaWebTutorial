@@ -4,10 +4,12 @@ public class ModernCar extends Car {
     private boolean havePositionDevice;
 
     public ModernCar(){
+        setTypeCar("Modern Car");
     }
 
     public ModernCar(boolean havePositionDevice){
         this.havePositionDevice = havePositionDevice;
+        setTypeCar("Modern Car");
     }
 
 

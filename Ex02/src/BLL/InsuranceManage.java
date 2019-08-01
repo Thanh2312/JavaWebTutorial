@@ -1,27 +1,26 @@
 package BLL;
 
+import DAL.InsuranceTableConnection;
 import DTO.Insurance;
 import DTO.PackageType;
 
 import java.util.Random;
 
 public class InsuranceManage {
-    private DAL.PackManage dalInsurance;
+    private InsuranceTableConnection dalInsurance;
     public InsuranceManage(){
-        dalInsurance = new DAL.PackManage();
+        dalInsurance = new InsuranceTableConnection();
     }
 
-    public Insurance[] createInsurance(){
+    public Insurance[] createInsurance(int total){
         Insurance[] insurances = new Insurance[10];
         Insurance insurance=null;
-
         for(int i = 0; i<10; i++){
             insurance = new Insurance();
-            insurance.setInsurancePackage("Insurance Package #"+(i +1));
+            insurance.setInsurancePackage("Insurance Package #"+(total + i +1));
             insurance.setPackageType(addRandomPackage());
             insurances[i] = insurance;
-
-//            dalInsurance.addPack(insurances[i]);
+            dalInsurance.addPack(insurances[i]);
         }
         return insurances;
     }
@@ -40,9 +39,8 @@ public class InsuranceManage {
 
     public static void main(String[] args) {
         InsuranceManage insuranceManage = new InsuranceManage();
-        Insurance[] insurances = insuranceManage.createInsurance();
-        for(int i = 0; i<10; i++)
-        {
+        Insurance[] insurances = insuranceManage.createInsurance(0);
+        for(int i = 0; i<10; i++) {
             System.out.println(insurances[i].toString());
         }
     }

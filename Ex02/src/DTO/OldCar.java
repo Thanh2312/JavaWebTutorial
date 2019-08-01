@@ -3,10 +3,13 @@ package DTO;
 public class OldCar extends Car {
     private int actionDuration;
 
-    public OldCar(){}
+    public OldCar(){
+        setTypeCar("Old Car");
+    }
 
     public OldCar(int actionDuration){
         this.actionDuration = actionDuration;
+        setTypeCar("Old Car");
     }
 
     public int getActionDuration() {
